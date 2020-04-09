@@ -152,7 +152,7 @@ class parsePDF():
         with open(tmp_ouput_file_name, "w") as write_file:
             json.dump(new_dictionary, write_file)     
 
-        print(new_dictionary)
+        #print(new_dictionary)
 
 
 parse=parsePDF()
