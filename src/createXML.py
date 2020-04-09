@@ -4,7 +4,9 @@ def create_xml(input_filename, output_filename, dataset):
     # Arguments
     black_list = {"ISIN","Country","Currency","Exchange","Quantity","C_Gain_Loss"}
     rename     = {"Country":"CodPais"}
-    anexos = ["AnexoJ","AnexoQ"]
+    anexos = ["Rosto","AnexoA","AnexoJ"]
+    quadros = ["Quadro01","Quadro02","Quadro03","Quadro04","Quadro05","Quadro06","Quadro07","Quadro08","Quadro09","Quadro10","Quadro11"]
+    
     new_dictiory = {}
     
      
