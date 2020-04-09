@@ -1,3 +1,5 @@
 tmp/
 documents/
 output/
+src/__pycache__/
+*tmp*
