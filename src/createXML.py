@@ -2,8 +2,8 @@ import dicttoxml
 
 def create_xml(input_filename, output_filename, dataset):
     # Arguments
-    black_list = {"ISIN","Country","Currency","Exchange","Quantity","C_Gain_Loss"}
-    annexs = {"Rosto":"","AnexoA":"","AnexoJ" : ["Quadro08","Quadro09"]}
+    black_list = {"ISIN","Currency","Exchange","Quantity","C_Gain_Loss"}
+    annexs = {"Rosto":"","AnexoA":"","AnexoJ" : {"Quadro09"}}
 
     new_dict = {}
      
@@ -15,7 +15,7 @@ def create_xml(input_filename, output_filename, dataset):
         new_dataset={}
         for k ,v in val.items():
             new_dataset_values = {k:v for (k,v) in v.items() if k not in black_list}
-            new_dataset.update({k:[new_dataset_values]})
+            new_dataset.update({k:new_dataset_values})
         #print(new_dataset)
 
 # Create a new dictionary: enter information as required by the IRS
@@ -24,27 +24,27 @@ def create_xml(input_filename, output_filename, dataset):
     for key, value in annexs.items(): 
         for v in value:
             new_line = {}
-            for k in range(1,x) :
-                new_line.update({"AnexoJq092AT01-Linha numero="+str(k):{
-                    "NLinha" : "",
-                    "CodPais" : "",
-                    "Codigo" : "",
-                    "AnoRealizacao" : "",
-                    "MesRealizacao" : "",
-                    "ValorRealizacao" : "",
-                    "AnoAquisicao" : "",
-                    "MesAquisicao" : "",
-                    "ValorAquisicao" : "",
-                    "DespesasEncargos" : "",
-                    "ImpostoPagoNoEstrangeiro" : "",
-                    "CodPaisContraparte" : ""
+            for i in range(1,x) :
+                new_line.update({"AnexoJq092AT01-Linha numero="+str(i):{
+                    "NLinha" : str(int(i+950)),
+                    "CodPais" : new_dataset[str(i-1)]['Country'],
+                    "Codigo" : new_dataset[str(i-1)]['Type'],
+                    "AnoRealizacao" : new_dataset[str(i-1)]['S_Date'][6:10],
+                    "MesRealizacao" : new_dataset[str(i-1)]['S_Date'][3:5],
+                    "ValorRealizacao" : new_dataset[str(i-1)]['S_Value'],
+                    "AnoAquisicao" : new_dataset[str(i-1)]['A_Date'][6:10],
+                    "MesAquisicao" : new_dataset[str(i-1)]['A_Date'][3:5],
+                    "ValorAquisicao" : new_dataset[str(i-1)]['A_Value'],
+                    "DespesasEncargos" : new_dataset[str(i-1)]['T_Costs'],
+                    "ImpostoPagoNoEstrangeiro" : new_dataset[str(i-1)]['Tax'],
+                    "CodPaisContraparte" : new_dataset[str(i-1)]['Counterparty_C']
                     }})
                 new_dic_line = {v: new_line}
                 new_dict.update({key:new_dic_line})
     print(new_dict)
 
     # Transformar em XML
-    xml_snippet = dicttoxml.dicttoxml(new_dataset, root=False)    
+    xml_snippet = dicttoxml.dicttoxml(new_dict, root=False)    
 
     #Escrever em ficheiro
     with open( "tmp.xml", "w") as f:
