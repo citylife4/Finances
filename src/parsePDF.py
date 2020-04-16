@@ -1,5 +1,5 @@
-import camelot
-import PyPDF2
+#import camelot
+#import PyPDF2
 import re
 import glob
 import json
@@ -20,7 +20,7 @@ class parsePDF():
         #pages_list="3,4"
         #print(self.exportJSON(pages_list))
         list_json_all , header_list = self.parseJSONs()
-        self.createList(list_json_all , header_list)
+        self.dict = self.createList(list_json_all , header_list)
         
 
 
@@ -152,7 +152,7 @@ class parsePDF():
         with open(tmp_ouput_file_name, "w") as write_file:
             json.dump(new_dictionary, write_file)     
 
-        #print(new_dictionary)
+        return new_dictionary
 
 
-parse=parsePDF()
+#parse=parsePDF()

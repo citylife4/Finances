@@ -1,14 +1,17 @@
 import dicttoxml
+from xml.dom.minidom import parseString
+import xml
+import xmltodict
+import json
 
 def create_xml(input_filename, output_filename, dataset):
-    # Arguments
+# Arguments
     black_list = {"ISIN","Currency","Exchange","Quantity","C_Gain_Loss"}
-    annexs = {"Rosto":"","AnexoA":"","AnexoJ" : {"Quadro09"}}
-
-    new_dict = {}
      
+
 # read dictionary dataset
     #print(dataset.items())
+
 
 # select the needed information from parse
     for key ,val in dataset.items():
@@ -16,39 +19,44 @@ def create_xml(input_filename, output_filename, dataset):
         for k ,v in val.items():
             new_dataset_values = {k:v for (k,v) in v.items() if k not in black_list}
             new_dataset.update({k:new_dataset_values})
-        #print(new_dataset)
 
-# Create a new dictionary: enter information as required by the IRS
 
+# Create a new dictionary
     x = int(list(new_dataset.keys())[-1]) + 2
-    for key, value in annexs.items(): 
-        for v in value:
-            new_line = {}
-            for i in range(1,x) :
-                new_line.update({"AnexoJq092AT01-Linha numero="+str(i):{
-                    "NLinha" : str(int(i+950)),
-                    "CodPais" : new_dataset[str(i-1)]['Country'],
-                    "Codigo" : new_dataset[str(i-1)]['Type'],
-                    "AnoRealizacao" : new_dataset[str(i-1)]['S_Date'][6:10],
-                    "MesRealizacao" : new_dataset[str(i-1)]['S_Date'][3:5],
-                    "ValorRealizacao" : new_dataset[str(i-1)]['S_Value'],
-                    "AnoAquisicao" : new_dataset[str(i-1)]['A_Date'][6:10],
-                    "MesAquisicao" : new_dataset[str(i-1)]['A_Date'][3:5],
-                    "ValorAquisicao" : new_dataset[str(i-1)]['A_Value'],
-                    "DespesasEncargos" : new_dataset[str(i-1)]['T_Costs'],
-                    "ImpostoPagoNoEstrangeiro" : new_dataset[str(i-1)]['Tax'],
-                    "CodPaisContraparte" : new_dataset[str(i-1)]['Counterparty_C']
-                    }})
-                new_dic_line = {v: new_line}
-                new_dict.update({key:new_dic_line})
-    print(new_dict)
+    list1=[]
+    for i in range(1,x) :
+        line = str(i-1)
+        dict1 = {
+            "@numero": str(i),
+            "NLinha" : str(int(i+950)),
+            "CodPais" : new_dataset[line]['Country'],
+            "Codigo" : new_dataset[line]['Type'],
+            "AnoRealizacao" : new_dataset[line]['S_Date'][6:10],
+            "MesRealizacao" : str(int(new_dataset[line]['S_Date'][3:5])),
+            "ValorRealizacao" : new_dataset[line]['S_Value'].replace(',','.'),
+            "AnoAquisicao" : new_dataset[line]['A_Date'][6:10],
+            "MesAquisicao" : str(int(new_dataset[line]['A_Date'][3:5])),
+            "ValorAquisicao" : new_dataset[line]['A_Value'].replace(',','.'),
+            "DespesasEncargos" : new_dataset[line]['T_Costs'].replace(',','.'),
+            "ImpostoPagoNoEstrangeiro" : new_dataset[line]['Tax'],
+            "CodPaisContraparte" : new_dataset[line]['Counterparty_C'].replace(',','.')
+            }
+        list1.append(dict1)
 
-    # Transformar em XML
-    xml_snippet = dicttoxml.dicttoxml(new_dict, root=False)    
 
-    #Escrever em ficheiro
-    with open( "tmp.xml", "w") as f:
-        f.write(str(xml_snippet))
+# Enter information as required by the IRS
+    with open(input_filename, "r") as fd:
+        irs_dict =xmltodict.parse(fd.read())
+    irs_dict['Modelo3IRSv2020']['AnexoJ']['Quadro09']['AnexoJq092AT01']['AnexoJq092AT01-Linha'] = list1
+
+    
+# Transformar em XML
+    print(xmltodict.unparse(irs_dict, pretty=True))
+
+
+#Escrever em ficheiro  
+    with open(output_filename, "w") as outfile:
+        outfile.write(xmltodict.unparse(irs_dict, pretty=True))
 
 
 example = {
@@ -103,4 +111,5 @@ example = {
         }
     }
 }
-create_xml("documents/bla.xml", "output.xml" , example )
+
+#create_xml("input.xml", "irs.xml" , example )

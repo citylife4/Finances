@@ -1,8 +1,9 @@
-import camelot
-import PyPDF2
+#import camelot
+#import PyPDF2
 import re
 import xml.etree.ElementTree as ET
-from createXML import create_xml
+import src.createXML as createXML
+import src.parsePDF as parsePDF
 import argparse
 
 # convert PDF into CSV file
@@ -21,9 +22,10 @@ class IRSgenerator():
 
 #Executed as a script
 
-irs = IRSgenerator()
+#irs = IRSgenerator()
 
-
+data  = parsePDF.parsePDF()
+createXML.create_xml("src/irs_original.xml", "irs.xml" , data.dict)
 # Inicializacao - IRSgenerator
 # Input - les ficheiros e trasmorfas em python datasets 
 # Parsing - transformas os datasets em algo q queiras
